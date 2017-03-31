@@ -18,17 +18,22 @@ window.addEventListener('load', () => {
     });
 
   Promise.all([
-    loadImage('assets/madrid.jpg'),
+    loadImage('assets/cat.jpg'),
     loadWASM()
   ]).then(data => {
 
     img = data[0];
     webdsp = data[1];
 
-    ctx.drawImage(img, 0, 0);
-    const pixels = ctx.getImageData(0, 0, img.width, img.height);
+    const x = (canvas.width - img.width) / 2;
+    const y = (canvas.height - img.height) / 2;
+    const w = img.width;
+    const h = img.height;
+
+    ctx.drawImage(img, x, y, w, h);
+    const pixels = ctx.getImageData(x, y, img.width, img.height);
     pixels.data.set(webdsp.sobelFilter(pixels.data, img.width, img.height, true));
-    ctx.putImageData(pixels, 0, 0);
+    ctx.putImageData(pixels, x, y);
   });
 
 
