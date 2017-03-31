@@ -27,7 +27,7 @@ window.addEventListener('load', () => {
 
     ctx.drawImage(img, 0, 0);
     const pixels = ctx.getImageData(0, 0, img.width, img.height);
-    pixels.data.set(webdsp.sobelFilter(pixels.data, img.width, img.height));
+    pixels.data.set(webdsp.sobelFilter(pixels.data, img.width, img.height, true));
     ctx.putImageData(pixels, 0, 0);
   });
 
