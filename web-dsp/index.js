@@ -18,7 +18,7 @@ window.addEventListener('load', () => {
     });
 
   Promise.all([
-    loadImage('assets/cat.jpg'),
+    loadImage('../assets/cat.jpg'),
     loadWASM()
   ]).then(data => {
 
