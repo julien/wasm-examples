@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <style></style>
+</head>
+<body>
+
+  <script>
+  window.addEventListener('load', function() {
+
+    if (('WebAssembly' in window) === false) {
+      console.error('No WebAssembly support');
+      return;
+    }
+
+    // var Module = {};
+
+    function loadWasm(url, cb) {
+      var xhr = new XMLHttpRequest();
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function() {
+        cb(null, xhr.response);
+      };
+      xhr.onerror = function(e) {
+        cb(e, null);
+      };
+      xhr.open('GET', url, true);
+      xhr.send();
+    }
+
+    function loadModule(cb) {
+      loadWasm('./hello_c.wasm', function(err, buffer) {
+        if (err !== null) {
+          return cb(err, null);
+        }
+
+        script = document.createElement('script');
+        doneEvent = new Event('done');
+        script.addEventListener('done', buildWasm);
+        script.src = 'hello_c.js';
+        document.body.appendChild(script);
+
+        function buildWasm() {
+          if (Module.asm && Module.asm._add) {
+            cb(null, {add: Module.asm._add});
+          }
+        }
+      });
+
+    }
+
+    loadModule(function (err, wam) {
+      if (err !== null) {
+        return console.error(err);
+      }
+
+      wam.add(100, 200);
+    });
+
+
+  });
+  </script>
+</body>
+</html>
