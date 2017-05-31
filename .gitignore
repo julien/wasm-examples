@@ -1,7 +1,8 @@
-
 *.o
-*_c.js
 *.wasm
 *.wast
+*_c.js
 a.out.js
+hello.html
+hello.js
 
