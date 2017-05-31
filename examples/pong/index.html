@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden}
+    body{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas{margin:0 5px;display:block}
+  </style>
+</head>
+<body>
+
+  <canvas id="canvas"></canvas>
+  <script>
+  window.addEventListener('load', function() {
+
+    const canvas = document.getElementById('canvas');
+    canvas.width = 500;
+    canvas.height = 400;
+    const ctx = canvas.getContext('2d');
+
+    if (('WebAssembly' in window) === false) {
+      throw new Error('No WebAssembly support');
+    }
+
+    const memory = new WebAssembly.Memory({initial: 256, maximum: 256});
+    const env = {
+      // ABORT: 0,
+      // DYNAMICTOP_PTR: 2064,
+      STACKTOP: 0,
+      STACK_MAX: 5244960,
+      abortStackOverflow: _ => {
+        throw new Error('overflow');
+      },
+      tableBase: 0,
+      memoryBase: 1024,
+      table: new WebAssembly.Table({initial: 2, maximum: 10, element: 'anyfunc'}),
+      memory: memory,
+
+      abort() {},
+
+      _clearRect(x, y, w, h) {
+        ctx.clearRect(x, y, w, h);
+      },
+
+      _fillRect(x, y, w, h) {
+        ctx.fillRect(x, y, w, h);
+      },
+
+      _setInterval(fn) {
+        setInterval(() => {
+          wasmInstance.exports._runCallback(fn);
+        }, 16);
+      },
+
+      _rand(min, max) {
+        return min + Math.random() * (max - min);
+      }
+    };
+
+    function loadWasm(url, importObj) {
+      return fetch(url)
+        .then(res => res.arrayBuffer())
+        .then(buf => WebAssembly.compile(buf))
+        .then(mod => WebAssembly.instantiate(mod, importObj));
+    }
+
+    let wasmInstance;
+
+    loadWasm('pong.wasm', {env})
+      .then(ins => {
+        wasmInstance = ins;
+        wasmInstance.exports._main();
+      });
+  });
+  </script>
+</body>
+</html>

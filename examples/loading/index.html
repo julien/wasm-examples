@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+  <script>
+    window.addEventListener('load', function() {
+
+      if (('WebAssembly' in window) === false) {
+        throw new Error('No WebAssembly support');
+      }
+
+      const memory = new WebAssembly.Memory({initial: 256, maximum: 256});
+      const env = {
+        // 'ABORT': 0,
+        // 'DYNAMICTOP_PTR': 2064,
+        STACKTOP: 0,
+        STACK_MAX: 5244960,
+        abortStackOverflow: _ => {
+          throw new Error('overflow');
+        },
+        tableBase: 0,
+        memoryBase: 1024,
+        table: new WebAssembly.Table({initial: 0, maximum: 0, element: 'anyfunc'}),
+        memory: memory
+      };
+
+      function loadWasm(url, importObj) {
+        return fetch(url)
+          .then(res => res.arrayBuffer())
+          .then(buf => WebAssembly.compile(buf))
+          .then(mod => WebAssembly.instantiate(mod, importObj));
+      }
+
+      loadWasm('loading.wasm', {env})
+        .then(ins => {
+          console.log('exported functions');
+          console.table(ins.exports);
+
+          console.log('1 + 10.1\t', ins.exports._add(1, 10.1));
+          console.log('10 - 9.02\t', ins.exports._sub(10, 9.02));
+          console.log('3.2 * 2.6\t', ins.exports._mul(3.2, 2.6));
+          console.log('4.3 / 1.5\t', ins.exports._div(4.3, 1.5));
+
+        })
+        .catch(e => console.error(e));
+    });
+  </script>
+</body>
+</html>
