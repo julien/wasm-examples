@@ -1,17 +1,12 @@
-EMSDK := $(HOME)/Documents/emsdk
-
-dst := loading.wasm
+bin := loading.wasm
 src := loading.c
 
-$(dst): $(src) $(check)
+$(bin): $(src)
 	emcc -o $@ $< -lm -O3 -s WASM=1 \
 		-s SIDE_MODULE=1
 
-check:
-	bash -c $(EMSDK)/emsdk_env.sh
-
 clean:
-	rm $(dst)
+	@if [ -a $(bin) ]; then rm $(bin); fi;
 
-default: $(target)
-.PHONY: check clean
+default: $(bin)
+.PHONY: clean

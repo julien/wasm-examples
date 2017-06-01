@@ -1,9 +1,7 @@
-EMSDK := $(HOME)/Documents/emsdk
-
-dst := hello.js
+bin := hello.js
 src := hello.c
 
-$(dst): $(src) $(check)
+$(bin): $(src)
 	emcc -o $@ $< -lm -O3 -s WASM=1 \
 		-s EXPORTED_FUNCTIONS="['_add']" \
 		-s ALLOW_MEMORY_GROWTH=1
@@ -11,11 +9,9 @@ $(dst): $(src) $(check)
 	sed -i'.bak' -e 's/else{doRun()}/&script.dispatchEvent(doneEvent);/' $@
 	rm *.bak
 
-check:
-	bash -c $(EMSDK)/emsdk_env.sh
-
 clean:
-	rm $(dst)
+	@if [ -a $(bin) ]; then rm $(bin); fi;
+	@if [ -a hello.wasm ]; then rm hello.wasm; fi;
 
-default: $(target)
-.PHONY: check clean
+default: $(bin)
+.PHONY: clean

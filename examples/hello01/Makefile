@@ -1,16 +1,13 @@
-EMSDK := $(HOME)/Documents/emsdk
-
-dst := hello.html
+bin := hello.html
 src := hello.c
 
-$(dst): $(src) $(check)
+$(bin): $(src)
 	emcc -o $@ $< -lm -O3 -s WASM=1
 
-check:
-	bash -c $(EMSDK)/emsdk_env.sh
-
 clean:
-	rm $(dst) hello.js hello.wasm
+	@if [ -a $(bin) ]; then rm $(bin); fi;
+	@if [ -a hello.js ]; then rm hello.js; fi;
+	@if [ -a hello.wasm ]; then rm hello.wasm; fi;
 
-default: $(target)
-.PHONY: check clean
+default: $(bin)
+.PHONY: clean

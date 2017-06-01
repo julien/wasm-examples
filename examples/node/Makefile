@@ -1,19 +1,15 @@
-EMSDK := $(HOME)/Documents/emsdk
-
 bin := a.out.js
 src := main.c
 
-$(bin): $(src) $(check)
+$(bin): $(src)
 	emcc -o $@ $< -lm -O3 -s WASM=1 \
 		-s BINARYEN_METHOD="'interpret-binary'"
 
-check:
-	bash -c $(EMSDK)/emsdk_env.sh
-
 clean:
-	rm $(bin)
+	@if [ -a $(bin) ]; then rm $(bin); fi;
+	@if [ -a hello.wasm ]; then rm hello.wasm; fi;
 
-default: $(target)
-.PHONY: check clean
+default: $(bin)
+.PHONY: clean
 
 
