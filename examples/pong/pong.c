@@ -23,8 +23,9 @@ typedef struct Rect {
 } Rect;
 
 typedef enum Type {
+  BALL,
+  PADDLE,
   WALL,
-  BALL
 } Type;
 
 typedef struct Object {
@@ -46,18 +47,20 @@ Object world[] = {
   /* paddles */
   {
     .r = {20, (H - 50) * 0.5, 10, 50},
-    .v = {0.0f, 1.5f}
+    .t = PADDLE,
+    .v = {0.0f, 2.5f},
   },
   {
     .r = {W - (10 + 20), (H - 50) * 0.5, 10, 50},
-    .v = {0.0f, 1.5f}
+    .t = PADDLE,
+    .v = {0.0f, 2.5f}
   },
 
   /* ball */
   {
-    .t = BALL,
     .r = {startx, starty, 5, 5},
-    .v = {2.5f, 1.25f}
+    .t = BALL,
+    .v = {-3.0f, 3.0f}
   }
 };
 
@@ -91,6 +94,7 @@ void move(Object *o) {
   n.x += o->v.x;
   n.y += o->v.y;
 
+
   for (int i = 0; i < c; i++) {
     Rect r = world[i].r;
 
@@ -103,7 +107,20 @@ void move(Object *o) {
       n.x += o->v.x;
 
       if (overlap(&n, &r)) {
-        o->v.x *= -1;
+
+        if (world[i].t == WALL) {
+          Vec2 v = o->v;
+          n.x = startx;
+          n.y = starty;
+          v.x = rand(-3.0f, 3.0f);
+          v.y = rand(-3.0f, 3.0f);
+          o->v = v;
+          continue;
+
+
+        } else {
+          o->v.x *= -1;
+        }
       }
 
       n.y += o->v.y;
@@ -116,11 +133,6 @@ void move(Object *o) {
   o->r = n;
 }
 
-void moveBall(Object *o) {
-  Rect n = o->r;
-  n.x += o->v.x;
-  n.y += o->v.y;
-}
 
 void movePaddle(Object *o) {
   Rect n = o->r;
@@ -146,7 +158,7 @@ int tick() {
 
 void randomizeVelocity(Object *o) {
   Vec2 v = o->v;
-  v.y = rand(-3.5f, 2.5f);
+  v.y = rand(-5.0f, 5.0f);
   o->v = v;
 }
 

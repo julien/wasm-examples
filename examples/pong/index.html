@@ -8,7 +8,6 @@
       align-items: center;
       justify-content: center;
     }
-
     canvas{margin:0 5px;display:block}
   </style>
 </head>
@@ -27,9 +26,10 @@
       throw new Error('No WebAssembly support');
     }
 
+    let paused = 0;
+
     const memory = new WebAssembly.Memory({initial: 256, maximum: 256});
     const env = {
-      // ABORT: 0,
       // DYNAMICTOP_PTR: 2064,
       STACKTOP: 0,
       STACK_MAX: 5244960,
@@ -42,21 +42,21 @@
       memory: memory,
 
       abort() {},
-
+      // externs
       _clearRect(x, y, w, h) {
         ctx.clearRect(x, y, w, h);
       },
-
       _fillRect(x, y, w, h) {
         ctx.fillRect(x, y, w, h);
       },
-
       _setInterval(fn) {
-        setInterval(() => {
+        function loop() {
+          requestAnimationFrame(loop);
           wasmInstance.exports._runCallback(fn);
-        }, 16);
-      },
+        }
+        requestAnimationFrame(loop);
 
+      },
       _rand(min, max) {
         return min + Math.random() * (max - min);
       }

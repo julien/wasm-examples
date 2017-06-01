@@ -11,7 +11,8 @@ check:
 	bash -c $(EMSDK)/emsdk_env.sh
 
 clean:
-	rm $(bin) $(ast)
+	@if [ -a $(bin) ]; then rm $(bin); fi;
+	@if [ -a $(ast) ]; then rm $(ast); fi;
 
 $(ast): $(bin)
 	wasm-dis $< -o $@
